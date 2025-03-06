@@ -43,7 +43,6 @@ class GameRulesService
         $uniqueX = array_unique($allX);
         $uniqueY = array_unique($allY);
         if (count($uniqueX) === 1) {
-            // Placement vertical
             sort($allY);
             for ($i = 1; $i < count($allY); $i++) {
                 if ($allY[$i] !== $allY[$i - 1] + 1) {
@@ -52,7 +51,6 @@ class GameRulesService
                 }
             }
         } elseif (count($uniqueY) === 1) {
-            // Placement horizontal
             sort($allX);
             for ($i = 1; $i < count($allX); $i++) {
                 if ($allX[$i] !== $allX[$i - 1] + 1) {
@@ -71,7 +69,6 @@ class GameRulesService
             $y = (int)$coord['y'];
             $found = false;
             foreach ($plateau->getBoardCases() as $boardCase) {
-                // On vérifie si c'est la bonne case
                 if ((int)$boardCase->getX() === $x && (int)$boardCase->getY() === $y) {
                     $found = true;
                     if ($boardCase->getNavire() !== null) {
@@ -82,7 +79,7 @@ class GameRulesService
                 }
             }
             if (!$found) {
-                error_log("Plateau ID {$plateau->getId()}: La case ($x, $y) n'a pas été trouvée dans le plateau.");
+                error_log("Plateau ID {$plateau->getId()}: La case ($x, $y) n'a pas été trouvée.");
                 return false;
             }
         }

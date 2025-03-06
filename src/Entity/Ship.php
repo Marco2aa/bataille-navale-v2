@@ -53,7 +53,7 @@ class Ship
         $this->boardCases = new ArrayCollection();
     }
 
-    // Getters & setters...
+    // Getters et setters...
     public function getId(): ?int
     {
         return $this->id;
@@ -130,9 +130,6 @@ class Ship
         $this->estCoule = $estCoule;
         return $this;
     }
-    /**
-     * @return Collection<int, BoardCase>
-     */
     public function getBoardCases(): Collection
     {
         return $this->boardCases;

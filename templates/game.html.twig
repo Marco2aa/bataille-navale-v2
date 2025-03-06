@@ -1,35 +1,22 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Bataille Navale - Placement des Bateaux
+{% block title %}Bataille Navale - Placement et Attaque
 {% endblock %}
 
 {% block body %}
 	<h1>Bataille Navale</h1>
 
-	<div
-		class="fleets">
-		<!-- Flotte du joueur -->
-		<div class="fleet">
-			<h2>Votre Flotte</h2>
-			<ul id="player-fleet">
-				<li data-ship-type="Porte-avions" data-size="5">Porte-avions (5 cases)</li>
-				<li data-ship-type="Cuirassé" data-size="4">Cuirassé (4 cases)</li>
-				<li data-ship-type="Croiseur" data-size="3">Croiseur (3 cases)</li>
-				<li data-ship-type="Sous-marin" data-size="3">Sous-marin (3 cases)</li>
-				<li data-ship-type="Torpilleur" data-size="2">Torpilleur (2 cases)</li>
-			</ul>
-		</div>
-		<!-- Flotte de l'adversaire (affichée pour test, mais normalement masquée) -->
-		<div class="fleet">
-			<h2>Flotte Adversaire</h2>
-			<ul id="opponent-fleet">
-				<li data-ship-type="Porte-avions" data-size="5">Porte-avions (5 cases)</li>
-				<li data-ship-type="Cuirassé" data-size="4">Cuirassé (4 cases)</li>
-				<li data-ship-type="Croiseur" data-size="3">Croiseur (3 cases)</li>
-				<li data-ship-type="Sous-marin" data-size="3">Sous-marin (3 cases)</li>
-				<li data-ship-type="Torpilleur" data-size="2">Torpilleur (2 cases)</li>
-			</ul>
-		</div>
+	<!-- Phase 1 : Placement des navires du joueur -->
+	<h2>Phase 1 : Placez vos navires</h2>
+	<div class="fleet">
+		<h3>Votre Flotte</h3>
+		<ul id="player-fleet">
+			<li data-ship-type="Porte-avions" data-size="5">Porte-avions (5 cases)</li>
+			<li data-ship-type="Cuirassé" data-size="4">Cuirassé (4 cases)</li>
+			<li data-ship-type="Croiseur" data-size="3">Croiseur (3 cases)</li>
+			<li data-ship-type="Sous-marin" data-size="3">Sous-marin (3 cases)</li>
+			<li data-ship-type="Torpilleur" data-size="2">Torpilleur (2 cases)</li>
+		</ul>
 	</div>
 
 	<div class="boards">
@@ -37,21 +24,51 @@
 			<h3>Votre Plateau de Navires</h3>
 			<div id="player-ship-board" data-game-id="{{ game.id }}" data-largeur="{{ playerShipPlateau.largeur }}" data-hauteur="{{ playerShipPlateau.hauteur }}" data-plateau-id="{{ playerShipPlateau.id }}"></div>
 		</div>
-		<div class="board-section">
-			<h3>Votre Plateau d'Attaque</h3>
-			<div id="player-attack-board" data-largeur="{{ playerAttackPlateau.largeur }}" data-hauteur="{{ playerAttackPlateau.hauteur }}" data-plateau-id="{{ playerAttackPlateau.id }}"></div>
-		</div>
+	</div>
+
+	<button id="validate-player-btn">Valider mes placements</button>
+
+	<hr>
+
+	<!-- Phase 2 : Placement des navires de l'adversaire -->
+	<h2>Phase 2 : Placez les navires de l'adversaire</h2>
+	<div class="fleet">
+		<h3>Flotte Adversaire</h3>
+		<ul id="opponent-fleet">
+			<li data-ship-type="Porte-avions" data-size="5">Porte-avions (5 cases)</li>
+			<li data-ship-type="Cuirassé" data-size="4">Cuirassé (4 cases)</li>
+			<li data-ship-type="Croiseur" data-size="3">Croiseur (3 cases)</li>
+			<li data-ship-type="Sous-marin" data-size="3">Sous-marin (3 cases)</li>
+			<li data-ship-type="Torpilleur" data-size="2">Torpilleur (2 cases)</li>
+		</ul>
+	</div>
+
+	<div class="boards">
 		<div class="board-section">
 			<h3>Plateau de Navires de l'Adversaire</h3>
 			<div id="opponent-ship-board" data-largeur="{{ opponentShipPlateau.largeur }}" data-hauteur="{{ opponentShipPlateau.hauteur }}" data-plateau-id="{{ opponentShipPlateau.id }}"></div>
 		</div>
-		<div class="board-section">
-			<h3>Plateau d'Attaque de l'Adversaire</h3>
+	</div>
+
+	<button id="validate-opponent-btn" disabled>Valider placements adverses</button>
+
+	<hr>
+
+	<!-- Phase 3 : Attaque -->
+	<h2>Phase 3 : Lancez vos attaques</h2>
+	<div class="side-container">
+		<div class="board-group">
+			<h3>Votre Plateau d'Attaque</h3>
+			<div id="player-attack-board" data-largeur="{{ playerAttackPlateau.largeur }}" data-hauteur="{{ playerAttackPlateau.hauteur }}" data-plateau-id="{{ playerAttackPlateau.id }}"></div>
+		</div>
+		<div class="board-group">
+			<h3>Plateau d'Attaque sur l'Adversaire</h3>
 			<div id="opponent-attack-board" data-largeur="{{ opponentAttackPlateau.largeur }}" data-hauteur="{{ opponentAttackPlateau.hauteur }}" data-plateau-id="{{ opponentAttackPlateau.id }}"></div>
 		</div>
 	</div>
 
-	<button id="validate-ships-btn">Valider les Placements</button>
+	<button id="attack-btn">Lancer l'attaque</button>
 
-	<script type="module" src="{{ asset('app.js') }}"></script>
+	<script type="module" src="{{ asset('js/app.js') }}"></script>
+	<script type="module" src="{{ asset('js/attack.js') }}"></script>
 {% endblock %}

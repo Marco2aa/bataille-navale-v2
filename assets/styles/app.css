@@ -62,3 +62,123 @@ body {
 .board-cell.ship {
     background-color: blue;
 }
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.side-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.board-group {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background: #fff;
+}
+
+.board-row {
+    display: flex;
+}
+
+.board-cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Par défaut, pour les navires placés */
+.board-cell.ship {
+    background-color: blue;
+}
+
+/* Optionnel : plateau désactivé */
+.board-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.fleet {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+    background: #f9f9f9;
+}
+
+.fleet ul {
+    list-style: none;
+    padding: 0;
+}
+
+.fleet li {
+    cursor: pointer;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.fleet li.selected {
+    background-color: #add8e6;
+}
+
+.boards {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.board-section {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 0 10px;
+    background: #fff;
+}
+
+.side-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.board-group {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background: #fff;
+}
+
+.board-row {
+    display: flex;
+}
+
+.board-cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Par défaut, pour les navires placés */
+.board-cell.ship {
+    background-color: blue;
+}
+
+/* Plateau désactivé */
+.board-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}

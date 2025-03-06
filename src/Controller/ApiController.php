@@ -21,12 +21,11 @@ class ApiController extends AbstractController
         GameRulesService $gameRulesService
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
-
         $gameId = $data['gameId'] ?? null;
         $playerPlateauId = $data['playerPlateauId'] ?? null;
-        $playerShipsData = $data['playerShips'] ?? []; // maintenant, tableau d'objets
+        $playerShipsData = $data['playerShips'] ?? []; // Tableau d'objets pour chaque navire du joueur
         $opponentPlateauId = $data['opponentPlateauId'] ?? null;
-        $opponentShipsData = $data['opponentShips'] ?? [];
+        $opponentShipsData = $data['opponentShips'] ?? []; // Tableau d'objets pour chaque navire de l'adversaire
 
         error_log("Payload reçu: " . print_r($data, true));
 
@@ -44,14 +43,17 @@ class ApiController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Jeu non trouvé.'], 404);
         }
 
-        // Récupérer le plateau du joueur
+        // Récupérer et réinitialiser le plateau du joueur
         $playerPlateau = $em->getRepository(Plateau::class)->find($playerPlateauId);
         if (!$playerPlateau) {
             error_log("Plateau du joueur non trouvé pour plateauId: $playerPlateauId");
             return new JsonResponse(['success' => false, 'message' => 'Plateau du joueur non trouvé.'], 404);
         }
+        foreach ($playerPlateau->getBoardCases() as $boardCase) {
+            $boardCase->setNavire(null);
+        }
 
-        // Traiter les navires du joueur
+        // Placer les navires du joueur
         foreach ($playerShipsData as $shipData) {
             $type = $shipData['type'] ?? 'Destroyer';
             $coordinates = $shipData['coordinates'] ?? [];
@@ -67,7 +69,6 @@ class ApiController extends AbstractController
             $ship->setPointsDeVie(count($coordinates));
             $ship->setEstCoule(false);
             $ship->setPlateau($playerPlateau);
-            // Optionnel : stocker la chaîne de positions
             $positionString = implode(';', array_map(fn($c) => $c['x'] . ',' . $c['y'], $coordinates));
             $ship->setPosition($positionString);
             if (!$gameRulesService->placeShip($playerPlateau, $ship, $coordinates)) {
@@ -77,12 +78,16 @@ class ApiController extends AbstractController
             $em->persist($ship);
         }
 
-        // Traiter les navires de l'adversaire (si fournis)
+        // Traitement du plateau de l'adversaire (s'il est fourni)
         if ($opponentPlateauId && !empty($opponentShipsData)) {
             $opponentPlateau = $em->getRepository(Plateau::class)->find($opponentPlateauId);
             if (!$opponentPlateau) {
                 error_log("Plateau de l'adversaire non trouvé pour plateauId: $opponentPlateauId");
                 return new JsonResponse(['success' => false, 'message' => "Plateau de l'adversaire non trouvé."], 404);
+            }
+            // Réinitialiser le plateau de l'adversaire
+            foreach ($opponentPlateau->getBoardCases() as $boardCase) {
+                $boardCase->setNavire(null);
             }
             foreach ($opponentShipsData as $shipData) {
                 $type = $shipData['type'] ?? 'Destroyer';
