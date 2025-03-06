@@ -1,5 +1,5 @@
 <?php
-
+// src/Entity/Ship.php
 namespace App\Entity;
 
 use App\Repository\ShipRepository;
@@ -53,107 +53,83 @@ class Ship
         $this->boardCases = new ArrayCollection();
     }
 
+    // Getters & setters...
     public function getId(): ?int
     {
         return $this->id;
     }
-
     public function getGame(): ?Game
     {
         return $this->game;
     }
-
     public function setGame(?Game $game): static
     {
         $this->game = $game;
-
         return $this;
     }
-
     public function getUser(): ?User
     {
         return $this->user;
     }
-
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
-
     public function getType(): ?string
     {
         return $this->type;
     }
-
     public function setType(string $type): static
     {
         $this->type = $type;
-
         return $this;
     }
-
-    public function getPosition(): ?int
+    public function getPosition(): ?string
     {
         return $this->position;
     }
-
-    public function setPosition(int $position): static
+    public function setPosition(string $position): static
     {
         $this->position = $position;
-
         return $this;
     }
-
     public function getPlateau(): ?Plateau
     {
         return $this->plateau;
     }
-
     public function setPlateau(?Plateau $plateau): static
     {
         $this->plateau = $plateau;
-
         return $this;
     }
-
     public function getPoints(): ?int
     {
         return $this->points;
     }
-
     public function setPoints(int $points): static
     {
         $this->points = $points;
-
         return $this;
     }
-
     public function getPointsDeVie(): ?int
     {
         return $this->points_de_vie;
     }
-
     public function setPointsDeVie(int $points_de_vie): static
     {
         $this->points_de_vie = $points_de_vie;
-
         return $this;
     }
-
     public function isEstCoule(): ?bool
     {
         return $this->estCoule;
     }
-
     public function setEstCoule(bool $estCoule): static
     {
         $this->estCoule = $estCoule;
-
         return $this;
     }
-
     /**
      * @return Collection<int, BoardCase>
      */
@@ -161,26 +137,21 @@ class Ship
     {
         return $this->boardCases;
     }
-
     public function addBoardCase(BoardCase $boardCase): static
     {
         if (!$this->boardCases->contains($boardCase)) {
-            $this->boardCases->add($boardCase);
+            $this->boardCases[] = $boardCase;
             $boardCase->setNavire($this);
         }
-
         return $this;
     }
-
     public function removeBoardCase(BoardCase $boardCase): static
     {
         if ($this->boardCases->removeElement($boardCase)) {
-            // set the owning side to null (unless already changed)
             if ($boardCase->getNavire() === $this) {
                 $boardCase->setNavire(null);
             }
         }
-
         return $this;
     }
 }

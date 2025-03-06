@@ -9,119 +9,111 @@ use App\Entity\BoardCase;
 class GameRulesService
 {
     /**
-     * Vérifie si le placement d'un navire est valide sur un plateau.
+     * Vérifie que le placement d'un navire est valide.
+     * Le placement doit être dans les limites du plateau,
+     * les cases doivent être libres et contiguës en ligne droite (horizontalement ou verticalement).
      *
-     * @param Plateau $plateau Le plateau sur lequel le navire doit être placé.
-     * @param array   $coordinates Un tableau de coordonnées (chaque élément est un tableau associatif ['x' => int, 'y' => int]).
-     *
-     * @return bool Retourne true si toutes les cases sont dans le plateau et non occupées, false sinon.
+     * @param Plateau $plateau
+     * @param array $coordinates Tableau de coordonnées, ex: [ ['x'=>0, 'y'=>0], ... ]
+     * @return bool
      */
     public function isShipPlacementValid(Plateau $plateau, array $coordinates): bool
     {
+        if (empty($coordinates)) {
+            error_log("Validation échouée : aucune coordonnée fournie pour le plateau ID " . $plateau->getId());
+            return false;
+        }
+
         $largeur = $plateau->getLargeur();
         $hauteur = $plateau->getHauteur();
 
+        // Vérifier les limites
         foreach ($coordinates as $coord) {
-            $x = $coord['x'];
-            $y = $coord['y'];
-            // Vérifier si la case est dans les limites du plateau
+            $x = (int)$coord['x'];
+            $y = (int)$coord['y'];
             if ($x < 0 || $x >= $largeur || $y < 0 || $y >= $hauteur) {
+                error_log("Plateau ID {$plateau->getId()}: Coordonnée hors limites : ($x, $y) hors de [0, " . ($largeur - 1) . "] x [0, " . ($hauteur - 1) . "].");
                 return false;
-            }
-            // Vérifier que la case n'est pas déjà occupée par un autre navire
-            foreach ($plateau->getBoardCases() as $boardCase) {
-                if ($boardCase->getX() === $x && $boardCase->getY() === $y && $boardCase->getNavire() !== null) {
-                    return false;
-                }
             }
         }
 
+        // Vérifier la contiguïté
+        $allX = array_map(fn($c) => (int)$c['x'], $coordinates);
+        $allY = array_map(fn($c) => (int)$c['y'], $coordinates);
+        $uniqueX = array_unique($allX);
+        $uniqueY = array_unique($allY);
+        if (count($uniqueX) === 1) {
+            // Placement vertical
+            sort($allY);
+            for ($i = 1; $i < count($allY); $i++) {
+                if ($allY[$i] !== $allY[$i - 1] + 1) {
+                    error_log("Plateau ID {$plateau->getId()}: Placement vertical invalide : indices non contigus " . print_r($allY, true));
+                    return false;
+                }
+            }
+        } elseif (count($uniqueY) === 1) {
+            // Placement horizontal
+            sort($allX);
+            for ($i = 1; $i < count($allX); $i++) {
+                if ($allX[$i] !== $allX[$i - 1] + 1) {
+                    error_log("Plateau ID {$plateau->getId()}: Placement horizontal invalide : indices non contigus " . print_r($allX, true));
+                    return false;
+                }
+            }
+        } else {
+            error_log("Plateau ID {$plateau->getId()}: Placement invalide : les cases ne sont pas alignées horizontalement ou verticalement. UniqueX: " . print_r($uniqueX, true) . " UniqueY: " . print_r($uniqueY, true));
+            return false;
+        }
+
+        // Vérifier que les cases ne sont pas déjà occupées
+        foreach ($coordinates as $coord) {
+            $x = (int)$coord['x'];
+            $y = (int)$coord['y'];
+            $found = false;
+            foreach ($plateau->getBoardCases() as $boardCase) {
+                // On vérifie si c'est la bonne case
+                if ((int)$boardCase->getX() === $x && (int)$boardCase->getY() === $y) {
+                    $found = true;
+                    if ($boardCase->getNavire() !== null) {
+                        error_log("Plateau ID {$plateau->getId()}: La case ($x, $y) est déjà occupée.");
+                        return false;
+                    }
+                    break;
+                }
+            }
+            if (!$found) {
+                error_log("Plateau ID {$plateau->getId()}: La case ($x, $y) n'a pas été trouvée dans le plateau.");
+                return false;
+            }
+        }
+
+        error_log("Plateau ID {$plateau->getId()}: Validation réussie pour les coordonnées: " . print_r($coordinates, true));
         return true;
     }
 
     /**
-     * Place un navire sur le plateau en associant les cases correspondantes.
+     * Place un navire sur le plateau en associant aux cases celles correspondant aux coordonnées indiquées.
      *
-     * @param Plateau $plateau Le plateau sur lequel placer le navire.
-     * @param Ship    $ship Le navire à placer.
-     * @param array   $coordinates Tableau de coordonnées à occuper par le navire.
-     *
-     * @return bool Retourne true si le placement est effectué, false si le placement est invalide.
+     * @param Plateau $plateau
+     * @param Ship $ship
+     * @param array $coordinates Tableau de coordonnées
+     * @return bool
      */
     public function placeShip(Plateau $plateau, Ship $ship, array $coordinates): bool
     {
         if (!$this->isShipPlacementValid($plateau, $coordinates)) {
+            error_log("La validation de placement a échoué pour le plateau ID " . $plateau->getId());
             return false;
         }
-        // Pour chaque case du plateau, si ses coordonnées font partie du placement, on l'associe au navire.
         foreach ($plateau->getBoardCases() as $boardCase) {
             foreach ($coordinates as $coord) {
-                if ($boardCase->getX() === $coord['x'] && $boardCase->getY() === $coord['y']) {
+                if ((int)$boardCase->getX() === (int)$coord['x'] && (int)$boardCase->getY() === (int)$coord['y']) {
                     $ship->addBoardCase($boardCase);
                     $boardCase->setNavire($ship);
                 }
             }
         }
+        error_log("Placement effectué pour le navire sur le plateau ID " . $plateau->getId());
         return true;
-    }
-
-    /**
-     * Traite un tir sur un plateau.
-     *
-     * @param Plateau $plateau Le plateau ciblé par le tir.
-     * @param int     $x La coordonnée x du tir.
-     * @param int     $y La coordonnée y du tir.
-     *
-     * @return array Retourne un tableau avec les informations sur le résultat du tir.
-     */
-    public function processShot(Plateau $plateau, int $x, int $y): array
-    {
-        // Recherche de la case ciblée
-        $targetCase = null;
-        foreach ($plateau->getBoardCases() as $boardCase) {
-            if ($boardCase->getX() === $x && $boardCase->getY() === $y) {
-                $targetCase = $boardCase;
-                break;
-            }
-        }
-        if (!$targetCase) {
-            return [
-                'success' => false,
-                'message' => 'Case invalide.'
-            ];
-        }
-
-        // Vérifier si la case a déjà été touchée
-        if ($targetCase->isEstTouche()) {
-            return [
-                'success' => false,
-                'message' => 'Cette case a déjà été touchée.'
-            ];
-        }
-
-        // Marquer la case comme touchée
-        $targetCase->setEstTouche(true);
-        $ship = $targetCase->getNavire();
-
-        if ($ship) {
-            // Décrémenter les points de vie du navire
-            $currentPV = $ship->getPointsDeVie();
-            $ship->setPointsDeVie($currentPV - 1);
-            $result = 'touché';
-            if ($ship->getPointsDeVie() <= 0) {
-                $ship->setEstCoule(true);
-                $result = 'coulé';
-            }
-            return [
-                'success' => true,
-                'message' => "Navire $result.",
-                'shipStatus' => $result
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Manqué.'
-        ];
     }
 }

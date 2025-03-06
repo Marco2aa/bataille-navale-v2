@@ -7,17 +7,47 @@
 	<h1>Bataille Navale</h1>
 
 	<div
-		class="board-grid">
-		<!-- Plateau de navires du joueur -->
-		<div class="board-container">
-			<h2>Votre Plateau de Navires ({{ app.user.userIdentifier }})</h2>
-			<div id="player-ship-board" data-largeur="{{ playerPlateau.largeur }}" data-hauteur="{{ playerPlateau.hauteur }}" data-plateau-id="{{ playerPlateau.id }}"></div>
+		class="fleets">
+		<!-- Flotte du joueur -->
+		<div class="fleet">
+			<h2>Votre Flotte</h2>
+			<ul id="player-fleet">
+				<li data-ship-type="Porte-avions" data-size="5">Porte-avions (5 cases)</li>
+				<li data-ship-type="Cuirassé" data-size="4">Cuirassé (4 cases)</li>
+				<li data-ship-type="Croiseur" data-size="3">Croiseur (3 cases)</li>
+				<li data-ship-type="Sous-marin" data-size="3">Sous-marin (3 cases)</li>
+				<li data-ship-type="Torpilleur" data-size="2">Torpilleur (2 cases)</li>
+			</ul>
 		</div>
+		<!-- Flotte de l'adversaire (affichée pour test, mais normalement masquée) -->
+		<div class="fleet">
+			<h2>Flotte Adversaire</h2>
+			<ul id="opponent-fleet">
+				<li data-ship-type="Porte-avions" data-size="5">Porte-avions (5 cases)</li>
+				<li data-ship-type="Cuirassé" data-size="4">Cuirassé (4 cases)</li>
+				<li data-ship-type="Croiseur" data-size="3">Croiseur (3 cases)</li>
+				<li data-ship-type="Sous-marin" data-size="3">Sous-marin (3 cases)</li>
+				<li data-ship-type="Torpilleur" data-size="2">Torpilleur (2 cases)</li>
+			</ul>
+		</div>
+	</div>
 
-		<!-- Plateau de navires de l'adversaire -->
-		<div class="board-container">
-			<h2>Plateau de Navires de l'Adversaire</h2>
-			<div id="opponent-ship-board" data-largeur="{{ opponentPlateau.largeur }}" data-hauteur="{{ opponentPlateau.hauteur }}" data-plateau-id="{{ opponentPlateau.id }}"></div>
+	<div class="boards">
+		<div class="board-section">
+			<h3>Votre Plateau de Navires</h3>
+			<div id="player-ship-board" data-game-id="{{ game.id }}" data-largeur="{{ playerShipPlateau.largeur }}" data-hauteur="{{ playerShipPlateau.hauteur }}" data-plateau-id="{{ playerShipPlateau.id }}"></div>
+		</div>
+		<div class="board-section">
+			<h3>Votre Plateau d'Attaque</h3>
+			<div id="player-attack-board" data-largeur="{{ playerAttackPlateau.largeur }}" data-hauteur="{{ playerAttackPlateau.hauteur }}" data-plateau-id="{{ playerAttackPlateau.id }}"></div>
+		</div>
+		<div class="board-section">
+			<h3>Plateau de Navires de l'Adversaire</h3>
+			<div id="opponent-ship-board" data-largeur="{{ opponentShipPlateau.largeur }}" data-hauteur="{{ opponentShipPlateau.hauteur }}" data-plateau-id="{{ opponentShipPlateau.id }}"></div>
+		</div>
+		<div class="board-section">
+			<h3>Plateau d'Attaque de l'Adversaire</h3>
+			<div id="opponent-attack-board" data-largeur="{{ opponentAttackPlateau.largeur }}" data-hauteur="{{ opponentAttackPlateau.hauteur }}" data-plateau-id="{{ opponentAttackPlateau.id }}"></div>
 		</div>
 	</div>
 

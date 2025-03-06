@@ -4,10 +4,55 @@ import './styles/app.css';
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    let selectedShip = null;             // Objet { type, size, orientation }
+    let selectedFleetElement = null;     // Élément DOM de la flotte sélectionné
+    const placedPlayerShips = [];        // Tableau d'objets pour les navires placés
+
+    // Fonction renvoyant la couleur en fonction du type de navire
+    function getColorForShipType(type) {
+        switch (type) {
+            case "Porte-avions": return "#00008B"; // Bleu foncé
+            case "Cuirassé": return "#808080";     // Gris
+            case "Croiseur": return "#008000";      // Vert
+            case "Sous-marin": return "#800080";    // Violet
+            case "Torpilleur": return "#FF0000";    // Rouge
+            default: return "blue";
+        }
+    }
+
+    // Gestion de la sélection dans la flotte du joueur
+    const playerFleetItems = document.querySelectorAll('#player-fleet li');
+    playerFleetItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Si on clique sur le même élément déjà sélectionné, on bascule l'orientation
+            if (selectedFleetElement === item) {
+                // Basculer l'orientation
+                selectedShip.orientation = (selectedShip.orientation === "horizontal") ? "vertical" : "horizontal";
+                item.textContent = `${item.dataset.shipType} (${item.dataset.size} cases) - ${selectedShip.orientation}`;
+                console.log("Orientation modifiée:", selectedShip.orientation);
+                return;
+            }
+            // Sinon, sélectionner cet élément et initialiser l'objet navire
+            if (selectedFleetElement) {
+                selectedFleetElement.classList.remove('selected');
+            }
+            selectedFleetElement = item;
+            item.classList.add('selected');
+            selectedShip = {
+                type: item.dataset.shipType,
+                size: parseInt(item.dataset.size),
+                orientation: "horizontal" // Orientation par défaut
+            };
+            // Mettre à jour le texte pour afficher l'orientation
+            item.textContent = `${item.dataset.shipType} (${item.dataset.size} cases) - horizontal`;
+            console.log("Navire sélectionné:", selectedShip);
+        });
+    });
+
     /**
-     * Crée une grille de plateau dans l'élément dont l'ID est fourni.
+     * Crée une grille dans l'élément dont l'ID est fourni.
      * @param {string} boardId - L'ID de l'élément conteneur.
-     * @param {function} cellClickCallback - Fonction appelée au clic sur chaque case.
+     * @param {function} cellClickCallback - Fonction appelée lors du clic sur chaque case.
      */
     function createBoard(boardId, cellClickCallback) {
         const boardEl = document.getElementById(boardId);
@@ -18,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const largeur = parseInt(boardEl.dataset.largeur) || 10;
         const hauteur = parseInt(boardEl.dataset.hauteur) || 10;
         boardEl.innerHTML = '';
-
         for (let y = 0; y < hauteur; y++) {
             const row = document.createElement('div');
             row.classList.add('board-row');
@@ -36,79 +80,128 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Callback pour le plateau de navires du joueur : placement interactif
-    function playerShipClick(x, y, cell) {
-        cell.classList.toggle('ship');
-        console.log(`Votre plateau de navires : case (${x}, ${y}) cliquée.`);
+    // Callback pour le plateau de navires du joueur (placement interactif)
+    function playerShipBoardClick(x, y, cell) {
+        if (!selectedShip) {
+            console.log("Aucun navire sélectionné dans votre flotte.");
+            return;
+        }
+        const boardEl = document.getElementById('player-ship-board');
+        const largeur = parseInt(boardEl.dataset.largeur) || 10;
+        const hauteur = parseInt(boardEl.dataset.hauteur) || 10;
+
+        // Selon l'orientation sélectionnée, vérifier que le navire tient
+        let cellsToFill = [];
+        if (selectedShip.orientation === "horizontal") {
+            if (x + selectedShip.size > largeur) {
+                alert("Le navire ne rentre pas horizontalement à partir de cette case.");
+                return;
+            }
+            for (let i = 0; i < selectedShip.size; i++) {
+                const selector = `.board-cell[data-x="${x + i}"][data-y="${y}"]`;
+                const targetCell = boardEl.querySelector(selector);
+                if (!targetCell || targetCell.classList.contains('ship')) {
+                    alert("Placement invalide : une ou plusieurs cases sont déjà occupées.");
+                    return;
+                }
+                cellsToFill.push(targetCell);
+            }
+        } else { // vertical
+            if (y + selectedShip.size > hauteur) {
+                alert("Le navire ne rentre pas verticalement à partir de cette case.");
+                return;
+            }
+            for (let i = 0; i < selectedShip.size; i++) {
+                const selector = `.board-cell[data-x="${x}"][data-y="${y + i}"]`;
+                const targetCell = boardEl.querySelector(selector);
+                if (!targetCell || targetCell.classList.contains('ship')) {
+                    alert("Placement invalide : une ou plusieurs cases sont déjà occupées.");
+                    return;
+                }
+                cellsToFill.push(targetCell);
+            }
+        }
+        // Si placement valide, marquer les cases et appliquer la couleur du navire
+        const shipColor = getColorForShipType(selectedShip.type);
+        cellsToFill.forEach(c => {
+            c.classList.add('ship');
+            c.style.backgroundColor = shipColor;
+        });
+        console.log(`Navire ${selectedShip.type} (${selectedShip.orientation}) placé à partir de (${x}, ${y}).`);
+
+        // Enregistrer le placement sous forme d'objet
+        const shipPlacement = {
+            type: selectedShip.type,
+            orientation: selectedShip.orientation,
+            coordinates: Array.from(cellsToFill).map(cell => ({
+                x: parseInt(cell.dataset.x),
+                y: parseInt(cell.dataset.y)
+            }))
+        };
+        placedPlayerShips.push(shipPlacement);
+        console.log("Placements actuels du joueur:", placedPlayerShips);
+        // Retirer le navire de la flotte (déselection)
+        selectedFleetElement.remove();
+        selectedShip = null;
+        selectedFleetElement = null;
     }
 
-    // Callback pour le plateau de navires de l'adversaire : placement interactif
-    function opponentShipClick(x, y, cell) {
-        cell.classList.toggle('ship');
-        console.log(`Plateau adversaire : case (${x}, ${y}) cliquée.`);
+    // Pour les plateaux d'attaque, on ne gère pas encore le placement
+    function attackBoardClick(x, y, cell) {
+        console.log(`Plateau d'attaque cliqué: (${x}, ${y}).`);
     }
 
-    // Création des grilles pour le placement des bateaux
-    createBoard('player-ship-board', playerShipClick);
-    createBoard('opponent-ship-board', opponentShipClick);
+    // Créer les grilles pour le joueur
+    createBoard('player-ship-board', playerShipBoardClick);
+    createBoard('player-attack-board', attackBoardClick);
+
+    // Pour l'adversaire, le plateau de navires peut être non interactif (ou vous pouvez le simuler)
+    createBoard('opponent-ship-board', () => {
+        alert("Le placement des navires adverses se fait automatiquement.");
+    });
+    createBoard('opponent-attack-board', attackBoardClick);
 
     // Bouton de validation des placements
     const validateBtn = document.getElementById('validate-ships-btn');
     if (validateBtn) {
         validateBtn.addEventListener('click', () => {
-            // Récupération des positions sur le plateau du joueur
+            // Préparer le payload
             const playerBoard = document.getElementById('player-ship-board');
-            const playerCells = playerBoard.querySelectorAll('.board-cell.ship');
-            const playerShips = Array.from(playerCells).map(cell => ({
-                x: parseInt(cell.dataset.x),
-                y: parseInt(cell.dataset.y)
-            }));
-
-            // Récupération des positions sur le plateau de l'adversaire
-            const opponentBoard = document.getElementById('opponent-ship-board');
-            const opponentCells = opponentBoard.querySelectorAll('.board-cell.ship');
-            const opponentShips = Array.from(opponentCells).map(cell => ({
-                x: parseInt(cell.dataset.x),
-                y: parseInt(cell.dataset.y)
-            }));
-
             const payload = {
+                gameId: playerBoard.dataset.gameId,
                 playerPlateauId: playerBoard.dataset.plateauId,
-                opponentPlateauId: opponentBoard.dataset.plateauId,
-                playerShips: playerShips,
-                opponentShips: opponentShips
+                // Le payload inclut le tableau des navires placés (chaque objet contient type, orientation et coordonnées)
+                playerShips: placedPlayerShips,
+                // Pour l'adversaire, on envoie un tableau vide pour cet exemple
+                opponentPlateauId: document.getElementById('opponent-ship-board').dataset.plateauId,
+                opponentShips: []
             };
 
-            console.log('Payload à envoyer:', payload);
+            console.log("Payload à envoyer:", payload);
 
-            // Envoi des placements via une requête AJAX en utilisant la méthode POST
             fetch('/api/place-ships', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
                 .then(response => {
-                    // Vérifier que la réponse est OK (statut 200-299)
                     if (!response.ok) {
-                        console.error('Réponse non OK, méthode utilisée:', response.type);
-                        throw new Error('Erreur lors de la validation des placements');
+                        throw new Error("Erreur lors de la validation des placements");
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Réponse API:', data);
-                    alert('Placements validés avec succès !');
-                    // Vous pouvez rediriger ou mettre à jour l'interface ici
+                    console.log("Réponse API:", data);
+                    alert("Placements validés avec succès !");
                 })
-                .catch(error => {
-                    console.error('Erreur lors de l\'envoi:', error);
-                    alert('Erreur lors de la validation des placements.');
+                .catch(err => {
+                    console.error("Erreur:", err);
+                    alert("Erreur lors de la validation des placements.");
                 });
         });
     }
 });
+
 
 
 
