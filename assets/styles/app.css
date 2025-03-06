@@ -1,3 +1,39 @@
 body {
-    background-color: skyblue;
+    background-color: white;
 }
+
+/* Style général pour le conteneur de plateau */
+#player-board, #opponent-board {
+    display: flex;
+    flex-direction: column;
+    width: 400px; /* Ajustez selon la taille souhaitée */
+    margin: 0 auto;
+    margin-bottom: 20px;
+  }
+  
+  /* Chaque ligne du plateau */
+  .board-row {
+    display: flex;
+  }
+  
+  /* Style de chaque case */
+  .board-cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  /* Classe pour une case sélectionnée (par exemple sur le plateau du joueur) */
+  .board-cell.selected {
+    background-color: #6c6;
+  }
+  
+  /* Classe pour une case touchée (par exemple sur le plateau adverse) */
+  .board-cell.hit {
+    background-color: red;
+  }
+  

@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Jeu de Bataille Navale
+{% endblock %}
+
+{% block body %}
+	<h1>Bataille Navale</h1>
+
+	<section id="player-section">
+		<h2>Votre Plateau ({{ app.user.userIdentifier }})</h2>
+		<div id="player-board" data-largeur="{{ plateau.largeur }}" data-hauteur="{{ plateau.hauteur }}" data-plateau-id="{{ plateau.id }}"></div>
+	</section>
+
+	<section id="opponent-section">
+		<h2>Plateau Adversaire</h2>
+		<div id="opponent-board" data-largeur="{{ plateau.largeur }}" data-hauteur="{{ plateau.hauteur }}" data-plateau-id="{{ plateau.id }}"></div>
+	</section>
+
+	<script src="{{ asset('js/battleship.js') }}"></script>
+{% endblock %}

@@ -20,8 +20,9 @@ class Game
     #[ORM\JoinColumn(nullable: false)]
     private ?User $player1 = null;
 
+    // On autorise player2 à être null au départ
     #[ORM\ManyToOne(inversedBy: 'games')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $player2 = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -57,7 +58,6 @@ class Game
     public function setPlayer1(?User $player1): static
     {
         $this->player1 = $player1;
-
         return $this;
     }
 
@@ -69,7 +69,6 @@ class Game
     public function setPlayer2(?User $player2): static
     {
         $this->player2 = $player2;
-
         return $this;
     }
 
@@ -81,7 +80,6 @@ class Game
     public function setStartTime(\DateTimeInterface $startTime): static
     {
         $this->startTime = $startTime;
-
         return $this;
     }
 
@@ -93,7 +91,6 @@ class Game
     public function setEndTime(\DateTimeInterface $endTime): static
     {
         $this->endTime = $endTime;
-
         return $this;
     }
 
@@ -105,7 +102,6 @@ class Game
     public function setStatus(string $status): static
     {
         $this->status = $status;
-
         return $this;
     }
 
@@ -123,19 +119,16 @@ class Game
             $this->ships->add($ship);
             $ship->setGame($this);
         }
-
         return $this;
     }
 
     public function removeShip(Ship $ship): static
     {
         if ($this->ships->removeElement($ship)) {
-            // set the owning side to null (unless already changed)
             if ($ship->getGame() === $this) {
                 $ship->setGame(null);
             }
         }
-
         return $this;
     }
 }

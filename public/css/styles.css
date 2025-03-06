@@ -1,0 +1,29 @@
+/* Conteneur du plateau */
+#game-board {
+    display: flex;
+    flex-direction: column;
+    width: 400px; /* Ajustez selon vos besoins */
+    margin: 0 auto;
+  }
+  
+  /* Chaque ligne du plateau */
+  .board-row {
+    display: flex;
+  }
+  
+  /* Style de chaque case */
+  .board-cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  /* Indiquer qu'une case a été touchée */
+  .board-cell.hit {
+    background-color: red;
+  }
+  

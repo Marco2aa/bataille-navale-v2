@@ -33,7 +33,7 @@ class Plateau
     /**
      * @var Collection<int, BoardCase>
      */
-    #[ORM\OneToMany(targetEntity: BoardCase::class, mappedBy: 'plateau')]
+    #[ORM\OneToMany(targetEntity: BoardCase::class, mappedBy: 'plateau', cascade: ['persist', 'remove'])]
     private Collection $boardCases;
 
     public function __construct()
@@ -55,7 +55,6 @@ class Plateau
     public function setLargeur(int $largeur): static
     {
         $this->largeur = $largeur;
-
         return $this;
     }
 
@@ -67,7 +66,6 @@ class Plateau
     public function setHauteur(int $hauteur): static
     {
         $this->hauteur = $hauteur;
-
         return $this;
     }
 
@@ -79,7 +77,6 @@ class Plateau
     public function setListCases(array $listCases): static
     {
         $this->listCases = $listCases;
-
         return $this;
     }
 
@@ -97,19 +94,16 @@ class Plateau
             $this->navires->add($navire);
             $navire->setPlateau($this);
         }
-
         return $this;
     }
 
     public function removeNavire(Ship $navire): static
     {
         if ($this->navires->removeElement($navire)) {
-            // set the owning side to null (unless already changed)
             if ($navire->getPlateau() === $this) {
                 $navire->setPlateau(null);
             }
         }
-
         return $this;
     }
 
@@ -127,19 +121,15 @@ class Plateau
             $this->boardCases->add($boardCase);
             $boardCase->setPlateau($this);
         }
-
         return $this;
     }
 
     public function removeBoardCase(BoardCase $boardCase): static
     {
         if ($this->boardCases->removeElement($boardCase)) {
-            // set the owning side to null (unless already changed)
             if ($boardCase->getPlateau() === $this) {
                 $boardCase->setPlateau(null);
             }
         }
-
-        return $this;
     }
 }
