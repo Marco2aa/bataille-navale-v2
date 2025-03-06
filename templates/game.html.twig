@@ -1,20 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Jeu de Bataille Navale
+{% block title %}Bataille Navale - Placement des Bateaux
 {% endblock %}
 
 {% block body %}
 	<h1>Bataille Navale</h1>
 
-	<section id="player-section">
-		<h2>Votre Plateau ({{ app.user.userIdentifier }})</h2>
-		<div id="player-board" data-largeur="{{ plateau.largeur }}" data-hauteur="{{ plateau.hauteur }}" data-plateau-id="{{ plateau.id }}"></div>
-	</section>
+	<div
+		class="board-grid">
+		<!-- Plateau de navires du joueur -->
+		<div class="board-container">
+			<h2>Votre Plateau de Navires ({{ app.user.userIdentifier }})</h2>
+			<div id="player-ship-board" data-largeur="{{ playerPlateau.largeur }}" data-hauteur="{{ playerPlateau.hauteur }}" data-plateau-id="{{ playerPlateau.id }}"></div>
+		</div>
 
-	<section id="opponent-section">
-		<h2>Plateau Adversaire</h2>
-		<div id="opponent-board" data-largeur="{{ plateau.largeur }}" data-hauteur="{{ plateau.hauteur }}" data-plateau-id="{{ plateau.id }}"></div>
-	</section>
+		<!-- Plateau de navires de l'adversaire -->
+		<div class="board-container">
+			<h2>Plateau de Navires de l'Adversaire</h2>
+			<div id="opponent-ship-board" data-largeur="{{ opponentPlateau.largeur }}" data-hauteur="{{ opponentPlateau.hauteur }}" data-plateau-id="{{ opponentPlateau.id }}"></div>
+		</div>
+	</div>
 
-	<script src="{{ asset('js/battleship.js') }}"></script>
+	<button id="validate-ships-btn">Valider les Placements</button>
+
+	<script type="module" src="{{ asset('app.js') }}"></script>
 {% endblock %}

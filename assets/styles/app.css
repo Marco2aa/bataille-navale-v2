@@ -1,22 +1,25 @@
-body {
-    background-color: white;
-}
-
-/* Style général pour le conteneur de plateau */
-#player-board, #opponent-board {
-    display: flex;
-    flex-direction: column;
-    width: 400px; /* Ajustez selon la taille souhaitée */
-    margin: 0 auto;
-    margin-bottom: 20px;
+/* Conteneur global des plateaux en grille 2x2 */
+.board-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* deux colonnes égales */
+    grid-gap: 20px; /* espacement entre les cases */
+    max-width: 900px; /* largeur max de la grille, à ajuster selon vos besoins */
+    margin: 0 auto; /* centrer la grille */
   }
   
-  /* Chaque ligne du plateau */
+  /* Conteneur individuel pour chaque plateau */
+  .board-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background: #f9f9f9;
+  }
+  
+  /* Style de base pour une ligne du plateau */
   .board-row {
     display: flex;
   }
   
-  /* Style de chaque case */
+  /* Style de base pour une case du plateau */
   .board-cell {
     width: 40px;
     height: 40px;
@@ -27,13 +30,61 @@ body {
     cursor: pointer;
   }
   
-  /* Classe pour une case sélectionnée (par exemple sur le plateau du joueur) */
-  .board-cell.selected {
-    background-color: #6c6;
+  /* Plateau de navires : case contenant un navire */
+  .board-cell.ship {
+    background-color: blue;
   }
   
-  /* Classe pour une case touchée (par exemple sur le plateau adverse) */
+  /* Plateau d'attaque : cases déjà attaquées */
+  .board-cell.attacked {
+    opacity: 0.7;
+  }
+  
+  /* Plateau d'attaque : coup réussi */
   .board-cell.hit {
     background-color: red;
+  }
+  
+  /* Plateau d'attaque : coup manqué */
+  .board-cell.miss {
+    background-color: gray;
+  }
+  
+
+  /* Conteneur global des plateaux en grille 2 colonnes */
+.board-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  /* Conteneur individuel pour chaque plateau */
+  .board-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background: #f9f9f9;
+  }
+  
+  /* Chaque ligne du plateau */
+  .board-row {
+    display: flex;
+  }
+  
+  /* Chaque case du plateau */
+  .board-cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  /* Case marquée comme contenant un navire */
+  .board-cell.ship {
+    background-color: blue;
   }
   
